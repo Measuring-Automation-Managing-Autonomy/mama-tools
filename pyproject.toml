@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mama-tools"
+version = "0.1.0"
+description = "MAMA reference tooling: use-case registry, metric calculation/validation, and a side-by-side portfolio view that never blends measures."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "MAMA Stewardship Council" }]
+keywords = ["automation", "autonomy", "governance", "metrics", "portfolio"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Management",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = ["pyyaml>=6.0", "jsonschema>=4.21"]
+
+[project.optional-dependencies]
+# The autonomy input path uses the org's version-pinned adapter for upstream
+# mama outputs. Without it, mama-tools still runs; portfolio autonomy columns
+# are shown as unavailable.
+autonomy = [
+  "mama-integrations @ git+https://github.com/Measuring-Automation-Managing-Autonomy/mama-integrations.git@v0.1.0"
+]
+dev = ["pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools"
+Upstream-method = "https://github.com/emmanuel-a-otchere/measuring-and-managing-autonomy"
+
+[project.scripts]
+mama-tools = "mama_tools.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

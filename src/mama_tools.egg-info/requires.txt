@@ -1,0 +1,8 @@
+pyyaml>=6.0
+jsonschema>=4.21
+
+[autonomy]
+mama-integrations @ git+https://github.com/Measuring-Automation-Managing-Autonomy/mama-integrations.git@v0.1.0
+
+[dev]
+pytest>=8.0

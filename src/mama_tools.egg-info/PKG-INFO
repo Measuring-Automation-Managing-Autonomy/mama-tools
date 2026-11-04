@@ -1,0 +1,104 @@
+Metadata-Version: 2.4
+Name: mama-tools
+Version: 0.1.0
+Summary: MAMA reference tooling: use-case registry, metric calculation/validation, and a side-by-side portfolio view that never blends measures.
+Author: MAMA Stewardship Council
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools
+Project-URL: Upstream-method, https://github.com/emmanuel-a-otchere/measuring-and-managing-autonomy
+Keywords: automation,autonomy,governance,metrics,portfolio
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Management
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: jsonschema>=4.21
+Provides-Extra: autonomy
+Requires-Dist: mama-integrations @ git+https://github.com/Measuring-Automation-Managing-Autonomy/mama-integrations.git@v0.1.0 ; extra == "autonomy"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+
+# mama-tools
+
+**MAMA** (Measuring Automation & Measuring Autonomy) reference tooling: a
+**use-case registry**, **metric calculation/validation**, and a
+**side-by-side portfolio view** that displays automation measures, `mama`
+autonomy profiles, and practice profiles **without ever blending them**
+(mama-framework [ADR-003](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/decisions/adr-003-no-composite-score.md)).
+
+> **First reference:** MAMA (Measuring Automation & Measuring Autonomy) uses
+> the `mama` (measuring and managing autonomy) method for its
+> autonomy-governance component. The `mama` method's canonical home is
+> [`emmanuel-a-otchere/measuring-and-managing-autonomy`](https://github.com/emmanuel-a-otchere/measuring-and-managing-autonomy).
+
+**Status:** `draft` (v0.1.0) · **License:** Apache-2.0 · **Maintainer:** see [MAINTAINERS.md](MAINTAINERS.md)
+
+## Install
+
+```bash
+pip install git+https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools.git@v0.1.0
+# with the autonomy display path (version-pinned adapter for upstream mama outputs):
+pip install "mama-tools[autonomy] @ git+https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools.git@v0.1.0"
+```
+
+Local-first and offline: every command reads and writes files you own;
+nothing is sent anywhere. No telemetry.
+
+## Commands
+
+```bash
+mama-tools usecase validate examples/usecase-refunds-agent.yaml   # schema + cross-checks
+mama-tools usecase list examples/registry/                        # validated listing
+mama-tools metric cards                                           # cards with registered calculators
+mama-tools metric calc exception-rate examples/metric-inputs.json # honest ratio arithmetic
+mama-tools portfolio examples/registry/ --ledger ledger.yaml      # side-by-side view
+```
+
+## Design rules
+
+1. **Never blended.** Automation metrics, `mama` autonomy profiles, and
+   practice profiles are separate instruments in separate columns/records;
+   there is no composite and no join beyond the use-case ID
+   ([ADR-003](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/decisions/adr-003-no-composite-score.md)).
+2. **Autonomy is pass-through.** Autonomy values come from upstream `mama`
+   outputs imported **as issued** via
+   [mama-integrations](https://github.com/Measuring-Automation-Managing-Autonomy/mama-integrations)
+   (optional `[autonomy]` extra) — this tool never recomputes, renames, or
+   rescales them.
+3. **No guessed formulas.** Metric cards define formulas as prose. The
+   calculator implements explicit, tested arithmetic for a fixed set of
+   ratio cards (`mama-tools metric cards`); anything else must be computed
+   in your own tooling and recorded as a baseline — mama-tools refuses to
+   guess.
+4. **Labels travel.** Every baseline carries `observed`/`estimate`/`forecast`
+   and the card version; comparability exists only within a card version.
+5. **Evidence-gated practice profiles.** A practice-maturity stage ≥ 2
+   without evidence references is rejected at validation (recorded as the
+   stage below, per the [maturity model](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/maturity-model.md)).
+
+## Threat review (summary)
+
+- **Input surface:** YAML/JSON files you point it at. Parsing uses
+  `yaml.safe_load`; JSON via stdlib. No code execution from data.
+- **No network.** No downloads, no telemetry, no outbound calls at runtime
+  (the `[autonomy]` extra is installed by *you*, like any dependency).
+- **Path/ID hygiene:** use-case IDs are slug-validated; nothing executes
+  from record content; errors fail closed with typed exceptions.
+- **Trust boundaries:** the tool displays governance data — it does not
+  authorize anything, and its output is not a control. Keep the records
+  under the same access control as the evidence they reference.
+
+## Status
+
+`draft` (v0.1.0). Part of the [MAMA framework](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework) —
+see the [charter](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/charter.md)
+and [limitations](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/charter.md#5-limitations).
+Pilot-stage until the multi-organization pilot reports.

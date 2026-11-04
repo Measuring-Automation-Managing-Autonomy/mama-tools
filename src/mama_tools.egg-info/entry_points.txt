@@ -1,0 +1,2 @@
+[console_scripts]
+mama-tools = mama_tools.cli:main

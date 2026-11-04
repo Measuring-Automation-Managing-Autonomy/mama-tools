@@ -1,0 +1,8 @@
+{
+  "card_id_note": "card id is passed on the command line; this file carries the inputs",
+  "numerator": 41,
+  "denominator": 1000,
+  "card_version": "0.1.0",
+  "window": "2026-10",
+  "data_quality_note": "exception classification model v3"
+}

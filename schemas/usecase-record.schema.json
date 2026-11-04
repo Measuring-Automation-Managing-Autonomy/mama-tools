@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools/blob/main/schemas/usecase-record.schema.json",
+  "title": "MAMA use-case record (schema_version 1.0.0)",
+  "description": "The MAMA-side join point: one automation/autonomy use case with its automation baselines, practice profile, value hypothesis, evidence, and decisions. Automation measures and mama autonomy outputs stay separate here by construction; nothing in this record blends them.",
+  "type": "object",
+  "required": ["schema_version", "id", "title", "owner", "risk_tier", "lifecycle"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^usecase-[a-z0-9]+(-[a-z0-9]+)*$" },
+    "title": { "type": "string", "minLength": 3 },
+    "owner": { "type": "string", "minLength": 1 },
+    "risk_tier": { "enum": ["low", "medium", "high"] },
+    "lifecycle": { "enum": ["intake", "baseline", "map-assess", "control-review", "operate", "review", "retired"] },
+    "jurisdictions": { "type": "array", "items": { "type": "string" } },
+    "intended_decision_use": { "type": "string" },
+    "domains": {
+      "type": "array",
+      "description": "The mama autonomy side: unit x decision domains holding delegated authority, with the contract that grants it.",
+      "items": {
+        "type": "object",
+        "required": ["unit", "domain"],
+        "additionalProperties": false,
+        "properties": {
+          "unit": { "type": "string", "minLength": 1 },
+          "domain": { "type": "string", "minLength": 1 },
+          "contract_id": { "type": "string", "minLength": 1 },
+          "ledger_ref": { "type": "string" }
+        }
+      }
+    },
+    "metric_baselines": {
+      "type": "array",
+      "description": "Automation/value baselines keyed to mama-metric card id + version.",
+      "items": {
+        "type": "object",
+        "required": ["card_id", "card_version", "value", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "card_id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "card_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "value": { "type": "number" },
+          "unit": { "type": "string" },
+          "window": { "type": "string" },
+          "label": { "enum": ["observed", "estimate", "forecast"] },
+          "data_quality_note": { "type": "string" }
+        }
+      }
+    },
+    "practice_profile": {
+      "type": "object",
+      "description": "Framework practice maturity model profile (maturity-model.md): five dimensions, stages 0-4, evidence-gated. Descriptive only; never combined with metric values or autonomy outputs.",
+      "additionalProperties": false,
+      "properties": {
+        "model_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "D-A": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "D-B": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "D-C": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "D-D": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "D-E": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ref"],
+            "additionalProperties": false,
+            "properties": {
+              "dimension": { "enum": ["D-A", "D-B", "D-C", "D-D", "D-E"] },
+              "ref": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "value_hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["card_id", "direction"],
+            "additionalProperties": false,
+            "properties": {
+              "card_id": { "type": "string" },
+              "direction": { "enum": ["increase", "decrease"] },
+              "roughly": { "type": "string" },
+              "by": { "type": "string" }
+            }
+          }
+        },
+        "adverse_effects": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "ref"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "ref": { "type": "string", "minLength": 1 },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "description": "Owned review decisions with rationale — the audit trail.",
+      "items": {
+        "type": "object",
+        "required": ["date", "move", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "move": { "enum": ["continue", "adjust", "expand", "constrain", "retire"] },
+          "rationale": { "type": "string", "minLength": 1 },
+          "record_ref": { "type": "string" }
+        }
+      }
+    }
+  }
+}
