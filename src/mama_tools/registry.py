@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 
 import jsonschema
+import yaml
 
 from .errors import RecordValidationError
 
@@ -107,3 +108,34 @@ def load_registry_dir(directory: str | Path) -> list[dict]:
             raise RecordValidationError(f"{p.name}: " + "; ".join(problems[:5]))
         records.append(rec)
     return records
+
+
+SCAFFOLD = """schema_version: "1.0.0"
+id: {rid}
+title: "{title}"
+owner: "{owner}"
+risk_tier: {risk_tier}
+lifecycle: intake
+intended_decision_use: >
+  <What decision will this evidence inform? Required before metrics are collected.>
+domains: []           # unit x decision domains holding delegated authority (mama side)
+metric_baselines: []  # card_id + card_version + value + label (observed|estimate|forecast)
+value_hypothesis:
+  statement: >
+    <Falsifiable: which cards move, in which direction, roughly how much, by when.>
+  targets: []
+  adverse_effects: []
+evidence: []
+decisions: []
+"""
+
+
+def scaffold(rid: str, title: str, owner: str, risk_tier: str = "medium") -> dict:
+    """Build a starter use-case record; validates before returning (fail closed)."""
+    rec = yaml.safe_load(
+        SCAFFOLD.format(rid=rid, title=title, owner=owner, risk_tier=risk_tier)
+    )
+    problems = validate_record(rec)
+    if problems:
+        raise RecordValidationError("; ".join(problems[:5]))
+    return rec

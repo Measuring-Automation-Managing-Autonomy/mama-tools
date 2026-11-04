@@ -37,6 +37,23 @@ def _cmd_usecase_list(args) -> int:
     return 0
 
 
+def _cmd_usecase_new(args) -> int:
+    from .registry import scaffold
+    rec = scaffold(args.id, args.title, args.owner, args.risk_tier)
+    out = Path(args.out)
+    if out.suffix not in (".yaml", ".yml", ".json"):
+        raise MamaToolsError("output path must be .yaml/.yml or .json")
+    if out.exists():
+        raise MamaToolsError(f"refusing to overwrite existing file: {out}")
+    if out.suffix == ".json":
+        out.write_text(json.dumps(rec, indent=2) + "\n", encoding="utf-8")
+    else:
+        import yaml
+        out.write_text(yaml.safe_dump(rec, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    print(f"wrote {out} ({rec['id']}) — fill in intended_decision_use, domains, and baselines, then re-validate")
+    return 0
+
+
 def _cmd_metric_calc(args) -> int:
     inputs = json.loads(Path(args.inputs).read_text(encoding="utf-8"))
     result = calculate(args.card, inputs, label=args.label)
@@ -86,6 +103,13 @@ def main(argv: list[str] | None = None) -> int:
     l = usub.add_parser("list", help="list validated use cases in a registry directory")
     l.add_argument("registry")
     l.set_defaults(func=_cmd_usecase_list)
+    n = usub.add_parser("new", help="scaffold a starter use-case record (validated before written)")
+    n.add_argument("--id", required=True, help="usecase-<slug> (lowercase, hyphenated)")
+    n.add_argument("--title", required=True)
+    n.add_argument("--owner", required=True)
+    n.add_argument("--risk-tier", default="medium", choices=["low", "medium", "high"])
+    n.add_argument("--out", required=True, help="output path (.yaml recommended)")
+    n.set_defaults(func=_cmd_usecase_new)
 
     p = sub.add_parser("metric", help="metric calculation")
     msub = p.add_subparsers(dest="mcmd", required=True)

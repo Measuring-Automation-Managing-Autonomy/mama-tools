@@ -16,3 +16,4 @@ tests/test_cli.py
 tests/test_metrics.py
 tests/test_portfolio.py
 tests/test_registry.py
+tests/test_usecase_new.py
