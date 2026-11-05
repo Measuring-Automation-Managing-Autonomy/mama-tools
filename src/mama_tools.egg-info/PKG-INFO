@@ -28,13 +28,13 @@ Requires-Dist: pytest>=8.0; extra == "dev"
 
 # mama-tools
 
-**MAMA** (Measuring Automation & Measuring Autonomy) reference tooling: a
+**MAMA** (Measuring Automation, Managing Autonomy) reference tooling: a
 **use-case registry**, **metric calculation/validation**, and a
 **side-by-side portfolio view** that displays automation measures, `mama`
 autonomy profiles, and practice profiles **without ever blending them**
 (mama-framework [ADR-003](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/decisions/adr-003-no-composite-score.md)).
 
-> **First reference:** MAMA (Measuring Automation & Measuring Autonomy) uses
+> **First reference:** MAMA (Measuring Automation, Managing Autonomy) uses
 > the `mama` (measuring and managing autonomy) method for its
 > autonomy-governance component. The `mama` method's canonical home is
 > [`emmanuel-a-otchere/measuring-and-managing-autonomy`](https://github.com/emmanuel-a-otchere/measuring-and-managing-autonomy).
