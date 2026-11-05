@@ -32,6 +32,8 @@ mama-tools usecase list examples/registry/                        # validated li
 mama-tools metric cards                                           # cards with registered calculators
 mama-tools metric calc exception-rate examples/metric-inputs.json # honest ratio arithmetic
 mama-tools portfolio examples/registry/ --ledger ledger.yaml      # side-by-side view
+mama-tools metrics import examples/series.csv --registry examples/registry --series-dir series/
+mama-tools tracker generate --registry examples/registry --series-dir series/ --ledger ledger.yaml --out tracker/
 ```
 
 ## Design rules
@@ -52,7 +54,9 @@ mama-tools portfolio examples/registry/ --ledger ledger.yaml      # side-by-side
    guess.
 4. **Labels travel.** Every baseline carries `observed`/`estimate`/`forecast`
    and the card version; comparability exists only within a card version.
-5. **Evidence-gated practice profiles.** A practice-maturity stage ≥ 2
+5. **The tracker is per-axis, never a composite.** The [tracker](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/indices-and-tracking.md) plots three separate indices - Automation (automation-coverage card value), Autonomy (mean granted level x20 from the ledger **as issued**, with the minimum granted level as a mandatory floor), and Value Realization (realized-vs-forecast, unclamped) - as an SVG trajectory + Markdown report. Axes are never summed, averaged, or weighted together ([ADR-005](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/decisions/adr-005-display-indices-and-tracker.md)).
+6. **The autonomy axis has no CSV seam.** Metric observations flow in through the flat [series interface](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/indices-and-tracking.md#4-the-series-interface-pulling-the-actual-numbers) (`metrics import`); delegated-authority numbers flow only through the version-gated `mama-integrations` import.
+7. **Evidence-gated practice profiles.** A practice-maturity stage ≥ 2
    without evidence references is rejected at validation (recorded as the
    stage below, per the [maturity model](https://github.com/Measuring-Automation-Managing-Autonomy/mama-framework/blob/main/maturity-model.md)).
 
