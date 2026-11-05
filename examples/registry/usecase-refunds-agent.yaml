@@ -1,0 +1,51 @@
+schema_version: "1.0.0"
+id: usecase-refunds-agent
+title: Refund decision agent (support)
+owner: support-director
+risk_tier: high
+lifecycle: review
+jurisdictions: [EU]
+intended_decision_use: >
+  Quarterly review of whether the refund agent's guardrailed grant should
+  expand, hold, or contract — decided by the support director with the
+  risk/impact review.
+domains:
+  - unit: support-refund-agent
+    domain: customer-refunds
+    contract_id: refund-agent-v2
+metric_baselines:
+  - card_id: exception-rate
+    card_version: "0.1.0"
+    value: 4.1
+    unit: percent
+    window: 2026-10
+    label: observed
+    data_quality_note: exception classification model v3; blind spots documented
+  - card_id: guardrail-drill-adherence
+    card_version: "0.1.0"
+    value: 100
+    unit: percent
+    window: 2026-Q4
+    label: observed
+practice_profile:
+  model_version: "0.2.0"
+  stages: { "D-A": 3, "D-B": 4, "D-C": 2, "D-D": 3, "D-E": 2 }
+  evidence:
+    - { dimension: D-A, ref: drill-log-2026Q4 }
+    - { dimension: D-D, ref: incident-review-register }
+value_hypothesis:
+  statement: >
+    Guardrailed expansion (cap $200) reduces refund-handling latency without
+    raising the exception rate above 5% or degrading customer redress.
+  targets:
+    - { card_id: service-latency, direction: decrease, roughly: "20%", by: "2027-03-31" }
+    - { card_id: exception-rate, direction: decrease, roughly: "below 5%", by: "2027-03-31" }
+  adverse_effects:
+    - "worker-experience-impact: oversight burden must not concentrate on one analyst"
+decisions:
+  - date: 2026-10-15
+    move: expand
+    rationale: >
+      Two clean review cycles with drilled step-down; expansion decided by the
+      support director per the upstream mama assessment (safe level L3).
+    record_ref: review-2026-10-15
