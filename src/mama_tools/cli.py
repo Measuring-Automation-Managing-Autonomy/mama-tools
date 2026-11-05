@@ -16,6 +16,8 @@ from .errors import MamaToolsError
 from .metrics import RATIO_CARDS, calculate
 from .portfolio import build_view
 from .registry import load_record, load_registry_dir, validate_record
+from .series import append_series, import_rows
+from .indices import build_tracker_record, write_outputs
 
 
 def _cmd_usecase_validate(args) -> int:
@@ -64,6 +66,39 @@ def _cmd_metric_calc(args) -> int:
 def _cmd_metric_cards(args) -> int:
     print("\n".join(sorted(RATIO_CARDS)))
     print(f"-- {len(RATIO_CARDS)} calculable ratio cards (others: calculate in your own tooling)", file=sys.stderr)
+    return 0
+
+
+def _cmd_metrics_import(args) -> int:
+    ids = {r["id"] for r in load_registry_dir(args.registry)}
+    rows = import_rows(args.file, registry_ids=ids)
+    written = append_series(args.series_dir, rows)
+    print(f"imported {written} row(s) into {args.series_dir} (append-only)")
+    return 0
+
+
+def _cmd_tracker_generate(args) -> int:
+    records = load_registry_dir(args.registry)
+    ledger = None
+    if args.ledger:
+        try:
+            from mama_integrations.ledger import load_ledger  # type: ignore
+        except ImportError as exc:
+            raise MamaToolsError(
+                "mama-integrations is not installed — install with the [autonomy] extra "
+                "to compute the autonomy axis (it must flow through the controlled import, never a spreadsheet)"
+            ) from exc
+        ledger = load_ledger(args.ledger)
+    trackers = [build_tracker_record(r, args.series_dir, ledger) for r in records]
+    paths = write_outputs(args.out, trackers)
+    for t in trackers:
+        a = t["axes"]
+        print(f"{t['usecase_id']}: automation={a['automation'] and a['automation']['value']} "
+              f"autonomy={a['autonomy'] and a['autonomy']['index']} (floor L{(a['autonomy'] or {}).get('min_level', 'n/a')}) "
+              f"value={a['value'] and a['value']['value']}")
+    for n in [n for t in trackers for n in t.get("notes", [])]:
+        print(f"note: {n}", file=sys.stderr)
+    print(f"wrote: " + ", ".join(paths.values()))
     return 0
 
 
@@ -120,6 +155,23 @@ def main(argv: list[str] | None = None) -> int:
     c.set_defaults(func=_cmd_metric_calc)
     cards = msub.add_parser("cards", help="list cards with registered calculators")
     cards.set_defaults(func=_cmd_metric_cards)
+
+    p = sub.add_parser("metrics", help="series import (the seam to your own measurement systems)")
+    msub2 = p.add_subparsers(dest="scmd", required=True)
+    im = msub2.add_parser("import", help="import observations from CSV/JSON (card-versioned, labeled, append-only)")
+    im.add_argument("file", help="CSV with columns usecase_id,card_id,card_version,window,value,label[,source_note] or JSON {rows: [...]}")
+    im.add_argument("--registry", required=True, help="registry directory (linkage must be explicit; no orphans)")
+    im.add_argument("--series-dir", required=True, help="directory for per-use-case series files (JSONL, append-only)")
+    im.set_defaults(func=_cmd_metrics_import)
+
+    p = sub.add_parser("tracker", help="per-axis indices + multi-dimensional tracker (never a composite)")
+    tsub = p.add_subparsers(dest="tcmd", required=True)
+    tc = tsub.add_parser("generate", help="compute tracker records and render plot + report")
+    tc.add_argument("--registry", required=True)
+    tc.add_argument("--series-dir", help="series directory from 'metrics import'")
+    tc.add_argument("--ledger", help="mama autonomy ledger YAML (requires mama-tools[autonomy])")
+    tc.add_argument("--out", required=True, help="output directory (tracker.jsonl, tracker-report.md, tracker-plot.svg)")
+    tc.set_defaults(func=_cmd_tracker_generate)
 
     p = sub.add_parser("portfolio", help="side-by-side portfolio view (never blended)")
     p.add_argument("registry", help="directory of use-case records")

@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Measuring-Automation-Managing-Autonomy/mama-tools/blob/main/schemas/tracker-record.schema.json",
+  "title": "MAMA tracker record (tracker_version 1.0.0)",
+  "description": "One generated point per use case on the multi-dimensional tracker: three SEPARATE per-axis display indices (ADR-005). Axes are never summed, averaged, or weighted together; absent axes are null, never imputed. The autonomy axis travels with its minimum granted level (the floor).",
+  "type": "object",
+  "required": [
+    "tracker_version",
+    "usecase_id",
+    "generated_at",
+    "axes",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "tracker_version": {
+      "const": "1.0.0"
+    },
+    "usecase_id": {
+      "type": "string",
+      "pattern": "^usecase-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "axes": {
+      "type": "object",
+      "required": [
+        "automation",
+        "autonomy",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "automation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "value",
+                "card_id",
+                "card_version",
+                "window",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "card_id": {
+                  "type": "string"
+                },
+                "card_version": {
+                  "type": "string"
+                },
+                "window": {
+                  "type": "string"
+                },
+                "label": {
+                  "enum": [
+                    "observed",
+                    "estimate",
+                    "forecast"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "autonomy": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "index",
+                "mean_level",
+                "min_level",
+                "domains",
+                "ruleset_version",
+                "ledger_schema",
+                "contract_ids"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "index": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "mean_level": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "min_level": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5,
+                  "description": "The floor: the least-autonomous linked domain. Travels with the index everywhere."
+                },
+                "domains": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "ruleset_version": {
+                  "type": "string",
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "ledger_schema": {
+                  "type": "integer",
+                  "minimum": 2
+                },
+                "contract_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "value",
+                "card_id",
+                "card_version",
+                "window",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "description": "Percent vs. forecast; may be negative (below forecast). Displayed unclamped."
+                },
+                "card_id": {
+                  "type": "string"
+                },
+                "card_version": {
+                  "type": "string"
+                },
+                "window": {
+                  "type": "string"
+                },
+                "label": {
+                  "enum": [
+                    "observed",
+                    "estimate",
+                    "forecast"
+                  ]
+                },
+                "attribution": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "practice_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "D-A": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "D-B": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "D-C": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "D-D": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "D-E": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "tool",
+        "tool_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "const": "mama-tools"
+        },
+        "tool_version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

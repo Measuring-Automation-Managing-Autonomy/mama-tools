@@ -1,0 +1,3 @@
+usecase_id,card_id,card_version,window,value,label,source_note
+usecase-refunds-agent,automation-coverage,0.1.0,2026-10,72.5,observed,workflow logs (export 2026-11-01)
+usecase-refunds-agent,realized-vs-forecast-benefit,0.1.0,2026-10,-12.5,observed,finance close 2026-10

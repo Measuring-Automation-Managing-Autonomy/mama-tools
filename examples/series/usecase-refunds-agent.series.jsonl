@@ -1,0 +1,2 @@
+{"card_id": "automation-coverage", "card_version": "0.1.0", "label": "observed", "source_note": "workflow logs (export 2026-11-01)", "usecase_id": "usecase-refunds-agent", "value": 72.5, "window": "2026-10"}
+{"card_id": "realized-vs-forecast-benefit", "card_version": "0.1.0", "label": "observed", "source_note": "finance close 2026-10", "usecase_id": "usecase-refunds-agent", "value": -12.5, "window": "2026-10"}
